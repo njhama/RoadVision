@@ -5,5 +5,6 @@
 - Keras
 - Matplotlib
 - Numpy/Pandas
-  
+
+## Example (First 10 Epochs)
 ![GAN Output](./layout.png)
