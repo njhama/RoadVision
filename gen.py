@@ -100,16 +100,11 @@ class GMapsGAN(Model):
 
     def train_step(self, real_images):
         batch_size = tf.shape(real_images)[0]
-
-        # Generating noise and fake images
         random_latent_vectors = tf.random.normal(shape=(batch_size, 100))
         generated_images = self.generator(random_latent_vectors, training=True)
-
-        # Creating labels for real and fake images
         real_labels = tf.ones((batch_size, 1))
         fake_labels = tf.zeros((batch_size, 1))
 
-        # Training the Discriminator
         with tf.GradientTape() as d_tape:
             real_predictions = self.discriminator(real_images, training=True)
             fake_predictions = self.discriminator(generated_images, training=True)
@@ -119,7 +114,7 @@ class GMapsGAN(Model):
         d_grads = d_tape.gradient(d_loss, self.discriminator.trainable_variables)
         self.d_opt.apply_gradients(zip(d_grads, self.discriminator.trainable_variables))
 
-        # Training the Generator
+    
         random_latent_vectors = tf.random.normal(shape=(batch_size, 100))
         misleading_labels = tf.ones((batch_size, 1))
         with tf.GradientTape() as g_tape:

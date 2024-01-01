@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAN Image Training Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        label, input {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>GAN Image Trainer</h2>
+        <form id="trainingForm">
+            <label for="africa">Africa:</label>
+            <input type="number" id="africa" name="africa"><br><br>
+
+            <label for="asia">Asia:</label>
+            <input type="number" id="asia" name="asia"><br><br>
+
+            <label for="europe">Europe:</label>
+            <input type="number" id="europe" name="europe"><br><br>
+
+            <label for="northAmerica">North America:</label>
+            <input type="number" id="northAmerica" name="northAmerica"><br><br>
+
+            <label for="southAmerica">South America:</label>
+            <input type="number" id="southAmerica" name="southAmerica"><br><br>
+
+            <label for="australia">Australia:</label>
+            <input type="number" id="australia" name="australia"><br><br>
+
+            <label for="antarctica">Antarctica:</label>
+            <input type="number" id="antarctica" name="antarctica"><br><br>
+
+            <button type="button" onclick="submitTraining()">Train Model</button>
+        </form>
+    </div>
+
+    <script>
+        function submitTraining() {
+            var trainingData = {
+                africa: document.getElementById('africa').value,
+                asia: document.getElementById('asia').value,
+                europe: document.getElementById('europe').value,
+                northAmerica: document.getElementById('northAmerica').value,
+                southAmerica: document.getElementById('southAmerica').value,
+                australia: document.getElementById('australia').value,
+                antarctica: document.getElementById('antarctica').value
+            };
+            
+          
+            console.log("Training data submitted:", trainingData);
+            
+        }
+    </script>
+</body>
+</html>
