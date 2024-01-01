@@ -101,34 +101,38 @@ class GMapsGAN(Model):
     def train_step(self, real_images):
         batch_size = tf.shape(real_images)[0]
 
-       
+        # Generating noise and fake images
         random_latent_vectors = tf.random.normal(shape=(batch_size, 100))
         generated_images = self.generator(random_latent_vectors, training=True)
 
-    
-        combined_images = tf.concat([real_images, generated_images], axis=0)
-        labels = tf.concat([tf.ones((batch_size, 1)), tf.zeros((batch_size, 1))], axis=0)
-        labels += 0.05 * tf.random.uniform(tf.shape(labels))  # Label smoothing
+        # Creating labels for real and fake images
+        real_labels = tf.ones((batch_size, 1))
+        fake_labels = tf.zeros((batch_size, 1))
 
-        #train descri
-        with tf.GradientTape() as tape:
-            predictions = self.discriminator(combined_images, training=True)
-            d_loss = self.d_loss(labels, predictions)
-        grads = tape.gradient(d_loss, self.discriminator.trainable_variables)
-        self.d_opt.apply_gradients(zip(grads, self.discriminator.trainable_variables))
+        # Training the Discriminator
+        with tf.GradientTape() as d_tape:
+            real_predictions = self.discriminator(real_images, training=True)
+            fake_predictions = self.discriminator(generated_images, training=True)
+            d_loss_real = self.d_loss(real_labels, real_predictions)
+            d_loss_fake = self.d_loss(fake_labels, fake_predictions)
+            d_loss = (d_loss_real + d_loss_fake) / 2
+        d_grads = d_tape.gradient(d_loss, self.discriminator.trainable_variables)
+        self.d_opt.apply_gradients(zip(d_grads, self.discriminator.trainable_variables))
 
-        # Generating noise 
+        # Training the Generator
         random_latent_vectors = tf.random.normal(shape=(batch_size, 100))
         misleading_labels = tf.ones((batch_size, 1))
-
-        # Training gen
-        with tf.GradientTape() as tape:
-            predictions = self.discriminator(self.generator(random_latent_vectors, training=True), training=False)
-            g_loss = self.g_loss(misleading_labels, predictions)
-        grads = tape.gradient(g_loss, self.generator.trainable_variables)
-        self.g_opt.apply_gradients(zip(grads, self.generator.trainable_variables))
+        with tf.GradientTape() as g_tape:
+            fake_predictions = self.discriminator(self.generator(random_latent_vectors, training=True), training=False)
+            g_loss = self.g_loss(misleading_labels, fake_predictions)
+        g_grads = g_tape.gradient(g_loss, self.generator.trainable_variables)
+        self.g_opt.apply_gradients(zip(g_grads, self.generator.trainable_variables))
 
         return {"d_loss": d_loss, "g_loss": g_loss}
+    
+    def call(self, inputs, training=False):
+        generated_images = self.generator(inputs, training=training)
+        return generated_images
 
 # Compile  GAN
 g_opt = Adam(learning_rate=0.0002, beta_1=0.5)
@@ -138,6 +142,16 @@ d_loss = BinaryCrossentropy(from_logits=False)
 
 gmaps_gan = GMapsGAN(generator, discriminator)
 gmaps_gan.compile(g_opt, d_opt, g_loss, d_loss)
+
+def generate_and_save_images(model, epoch, test_input, folder='generated_images'):
+    predictions = model(test_input, training=False)
+
+    for i in range(predictions.shape[0]):
+        plt.figure(figsize=(6, 6))
+        plt.imshow((predictions[i, :, :, :] * 127.5 + 127.5) / 255)
+        plt.axis('off')
+        plt.savefig(os.path.join(folder, f'image_at_epoch_{epoch}_num_{i}.png'))
+        plt.close()
 
 class ModelMonitor(Callback):
     def __init__(self, num_img=4, latent_dim=100, save_folder='generated_images'):
@@ -152,17 +166,8 @@ class ModelMonitor(Callback):
 
 
 # Training  GAN
-hist = gmaps_gan.fit(train_ds, epochs=10, callbacks=[ModelMonitor()], validation_data=val_ds)
-def generate_and_save_images(model, epoch, test_input, folder='generated_images'):
-    predictions = model(test_input, training=False)
+hist = gmaps_gan.fit(train_ds, epochs=10, callbacks=[ModelMonitor()])
 
-    for i in range(predictions.shape[0]):
-        plt.figure(figsize=(6, 6))
-        plt.imshow((predictions[i, :, :, :] * 127.5 + 127.5) / 255)
-        plt.axis('off')
-        plt.savefig(os.path.join(folder, f'image_at_epoch_{epoch}_num_{i}.png'))
-        plt.close()
-        
 # Gen images
 generate_and_save_images(generator, 'final', tf.random.normal(shape=(4, 100)))
 print('done')
