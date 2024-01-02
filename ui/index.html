@@ -6,27 +6,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GAN Image Training Interface</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
+        
+        h2 {
+            text-align: center;
         }
         .container {
-            max-width: 600px;
+            max-width: 400px;
             margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px #aaa;
+            background-color: #f9f9f9;
         }
+
         label, input {
+            display: block;
+            width: 90%;
             margin-bottom: 10px;
+            text-align: center;
         }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #4CAF50;
             cursor: pointer;
+            border-radius: 50%;
         }
-        button:hover {
-            background-color: #45a049;
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -35,26 +66,26 @@
         <h2>GAN Image Trainer</h2>
         <form id="trainingForm">
             <label for="africa">Africa:</label>
-            <input type="number" id="africa" name="africa"><br><br>
-
+            <input type="range" id="africa" name="africa" min="0" max="100" value="0"><br>
+            
             <label for="asia">Asia:</label>
-            <input type="number" id="asia" name="asia"><br><br>
-
+            <input type="range" id="asia" name="asia" min="0" max="100" value="0"><br>
+            
             <label for="europe">Europe:</label>
-            <input type="number" id="europe" name="europe"><br><br>
-
+            <input type="range" id="europe" name="europe" min="0" max="100" value="0"><br>
+            
             <label for="northAmerica">North America:</label>
-            <input type="number" id="northAmerica" name="northAmerica"><br><br>
-
+            <input type="range" id="northAmerica" name="northAmerica" min="0" max="100" value="0"><br>
+            
             <label for="southAmerica">South America:</label>
-            <input type="number" id="southAmerica" name="southAmerica"><br><br>
-
+            <input type="range" id="southAmerica" name="southAmerica" min="0" max="100" value="0"><br>
+            
             <label for="australia">Australia:</label>
-            <input type="number" id="australia" name="australia"><br><br>
-
+            <input type="range" id="australia" name="australia" min="0" max="100" value="0"><br>
+            
             <label for="antarctica">Antarctica:</label>
-            <input type="number" id="antarctica" name="antarctica"><br><br>
-
+            <input type="range" id="antarctica" name="antarctica" min="0" max="100" value="0"><br>
+            
             <button type="button" onclick="submitTraining()">Train Model</button>
         </form>
     </div>
@@ -71,9 +102,16 @@
                 antarctica: document.getElementById('antarctica').value
             };
             
-          
-            console.log("Training data submitted:", trainingData);
             
+            if (Object.values(trainingData).every(val => val == 0)) {
+                alert("All values can't be 0..");
+                return;
+            }
+            else {
+                console.log("Training data submitted:", trainingData);
+
+                alert("Successful")
+            }
         }
     </script>
 </body>
